@@ -116,17 +116,46 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-MEDIA_ROOT = BASE_DIR / "uploads"
-MEDIA_URL = "/uploads/"
+USE_S3 = env.bool("USE_S3", default=(not DEBUG))
 
-STATIC_URL = "/static/"
+if USE_S3:
+    SUPABASE_URL = env("SUPABASE_URL")
+    SUPABASE_KEY = env("SUPABASE_KEY")
+    SUPABASE_BUCKET = env("SUPABASE_BUCKET")
 
-# This production code might break development mode, so we check whether we're in DEBUG mode
+    try:
+        SUPABASE_PROJECT_ID = SUPABASE_URL.split('.')[0].split('//')[1]
+    except IndexError:
+        raise ValueError(
+            "Invalid SUPABASE_URL format. Expected format: https://projectid.supabase.co")
+
+    AWS_ACCESS_KEY_ID = SUPABASE_PROJECT_ID
+    AWS_SECRET_ACCESS_KEY = SUPABASE_KEY
+    AWS_STORAGE_BUCKET_NAME = SUPABASE_BUCKET
+    AWS_S3_ENDPOINT_URL = f"{SUPABASE_URL}/storage/v1"
+
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+    AWS_LOCATION = 'media'
+    AWS_DEFAULT_ACL = None
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_QUERYSTRING_AUTH = False
+
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+    MEDIA_URL = f'{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/'
+    if AWS_LOCATION:
+        MEDIA_URL += f'{AWS_LOCATION}/'
+
+else:
+    MEDIA_URL = "/uploads/" 
+    MEDIA_ROOT = BASE_DIR / "uploads"
+    if not os.path.exists(MEDIA_ROOT):
+        os.makedirs(MEDIA_ROOT)
+
 if not DEBUG:
-    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
     STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
-    # and renames the files with unique names for each version to support long-term caching
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
