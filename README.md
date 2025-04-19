@@ -1,6 +1,6 @@
 # Photographer Portfolio
 
-This project is a pretty simple and common photographer portfolio website built with Django. You can see it live here: [https://photographer-portfolio-tv35.onrender.com/](https://photographer-portfolio-tv35.onrender.com/)
+This project is a pretty simple and common photographer portfolio website built with Django. You can see it live here: [https://photographer-portfolio-wknx.onrender.com/](https://photographer-portfolio-wknx.onrender.com/)
 
 ## What it Does
 - Displays photos in adaptable grids.
@@ -17,8 +17,6 @@ This project is a pretty simple and common photographer portfolio website built 
 - **Django**: Python web framework.
 
 ### Frontend
-- **HTML, CSS, and JavaScript**: Create the user interface.
+- **HTML, CSS, and JavaScript**.
 - **JavaScript Libraries**: 
-  - **jQuery**: For general interactions.
-  - **GLightbox**: For the image/video viewer.
   - **Colcade.js and Masonry.js**: For grid layouts.
